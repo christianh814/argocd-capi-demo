@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: capi-clusters
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - clusterName: cluster1
+        gitRepo: https://github.com/christianh814/argocd-capi-demo
+        appPath: capi
+        appBranch: main
+      - clusterName: cluster2
+        gitRepo: https://github.com/christianh814/argocd-capi-demo
+        appPath: capi
+        appBranch: main
+  template:
+    metadata:
+      name: '{{clusterName}}-capi'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: '{{gitRepo}}'
+        path: '{{appPath}}'
+        targetRevision: '{{appBranch}}'
+        helm:
+          valueFiles:
+            - 'values-{{clusterName}}.yaml'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
