@@ -1,0 +1,5 @@
+cluster:
+  name: cluster1
+  masterNodes: 3
+  workerNodes: 3
+  version: v1.23.3
