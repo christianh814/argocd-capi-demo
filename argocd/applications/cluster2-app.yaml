@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster2-capi
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  source:
+    path: capi/
+    repoURL: https://github.com/christianh814/argocd-capi-demo
+    targetRevision: main
+    helm:
+      valueFiles:
+        - values-cluster2.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
