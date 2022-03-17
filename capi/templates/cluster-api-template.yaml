@@ -131,7 +131,7 @@ kind: Job
 metadata:
   annotations:
     argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    ##argocd.argoproj.io/hook-delete-policy: HookSucceeded
   name: capi-setup-{{ .Values.cluster.name }}-job
   namespace: argocd
 spec:
@@ -159,10 +159,13 @@ spec:
               done
               # build config
               /usr/local/bin/create-kconfig.sh
+              sleep $WAIT
               # get the kubeconfig of the capi cluster
               clusterctl get kubeconfig $CAPI_CLUSTER_NAME > $HOME/$CAPI_CLUSTER_NAME.kubeconfig
+              sleep $WAIT
               # apply CNI
               kubectl --kubeconfig=$HOME/$CAPI_CLUSTER_NAME.kubeconfig apply -f $CAPI_CNI_YAML_URL
+              sleep $WAIT
           imagePullPolicy: Always
           name: capi-setup-container
           env:
