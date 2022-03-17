@@ -180,4 +180,3 @@ spec:
       restartPolicy: OnFailure
       serviceAccountName: argocd-application-controller
       terminationGracePeriodSeconds: 90
-...
