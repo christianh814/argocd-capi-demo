@@ -35,7 +35,7 @@ kind create cluster --config=kind-config.yaml --name=manager
 
 Once you see this output, you're good to go.
 
-```shell
+```
 Creating cluster "manager" ...
  ✓ Ensuring node image (kindest/node:v1.23.4) 🖼
  ✓ Preparing nodes 📦  
@@ -93,4 +93,38 @@ Create the `ApplicationSets`
 
 ```shell
 kubectl apply -k https://github.com/christianh814/argocd-capi-demo/argocd/applicationsets
+```
+
+## SUCCESS
+
+You should have (after a few minutes) two Kubernetes clusters running
+in KIND.
+
+![capi-argocd-image](docs/images/clusters.png)
+
+Also, each one of these CAPI Clusters have a sample workload
+running on them.
+
+![workload-argocd-image](docs/images/workload.png)
+
+Running the following...
+
+```shell
+kind get clusters
+```
+
+Should now show that you have a management cluster and two CAPI Clusters.
+
+```
+cluster1
+cluster2
+manager
+```
+
+## Cleanup
+
+Just delete your KIND clusters
+
+```shell
+kind delete clusters --all
 ```
