@@ -11,7 +11,7 @@ spec:
           bgd: deploy
   template:
     metadata:
-      name: '{{name}}-bgd'
+      name: 'bgd-{{name}}'
     spec:
       project: default
       syncPolicy:
