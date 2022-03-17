@@ -167,15 +167,15 @@ spec:
           name: capi-setup-container
           env:
           - name: WAIT
-            value: {{ .Values.cluster.capiSetupWait }}
+            value: "{{ .Values.cluster.capiSetupWait }}"
           - name: CAPI_CLUSTER_NAME
-            value: {{ .Values.cluster.name }}
+            value: "{{ .Values.cluster.name }}"
           - name: CAPI_CP_NODES
-            value: {{ .Values.cluster.masterNodes }}
+            value: "{{ .Values.cluster.masterNodes }}"
           - name: CAPI_CNI_YAML_URL
-            value: {{ .Values.cluster.capiClusterCNI }}
+            value: "{{ .Values.cluster.capiClusterCNI }}"
           - name: CAPI_WAIT_TIMEOUT
-            value: {{ .Values.cluster.capiSetupTimeout }}
+            value: "{{ .Values.cluster.capiSetupTimeout }}"
       dnsPolicy: ClusterFirst
       restartPolicy: OnFailure
       serviceAccountName: argocd-application-controller
