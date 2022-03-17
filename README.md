@@ -88,3 +88,9 @@ Extract the Argo CD password so you can login to the UI as the `admin` user
 ```shell
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d ; echo
 ```
+
+Create the `ApplicationSets`
+
+```shell
+kubectl apply -k https://github.com/christianh814/argocd-capi-demo/argocd/applicationsets
+```
