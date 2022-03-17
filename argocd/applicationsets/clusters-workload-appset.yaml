@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bgd
+  namespace: argocd
+spec:
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          bgd: deploy
+  template:
+    metadata:
+      name: '{{name}}-bgd'
+    spec:
+      project: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        retry:
+          limit: 15
+          backoff:
+            duration: 15s
+            factor: 2
+            maxDuration: 5m
+      source:
+        repoURL: https://github.com/christianh814/argocd-capi-demo
+        targetRevision: main
+        path: 'apps/bgd/overlays/{{name}}'
+      destination:
+        server: '{{server}}'
+        namespace: bgd
