@@ -65,15 +65,19 @@ Initialize this cluster with the Docker Cluster API infrastructure provider.
 clusterctl init --infrastructure docker
 ```
 
-## Install Argo CD
+## Install Argo Components
 
-Install Argo CD onto the management cluster
+Install Argo Components onto the management cluster
 
 ```shell
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-notifications/stable/catalog/install.yaml
+until kubectl apply -k https://github.com/christianh814/argocd-capi-demo/bootstrap/install/; do sleep 3; done
 ```
+
+This installs the following
+
+* Argo CD
+* Argo Workflows
+* Argo Events
 
 Open another terminal tab and run port-forward to get to the Argo CD UI.
 
@@ -83,7 +87,7 @@ kubectl port-forward -n argocd svc/argocd-server 8080:80
 
 Extract the Argo CD password so you can login to the UI as the `admin` user
 
-> **NOTE** For the purposes of this demo, don't change the Argo CD Admin password
+> :rotating_light: **NOTE** For the purposes of this demo, don't change the Argo CD Admin password
 
 ```shell
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d ; echo
