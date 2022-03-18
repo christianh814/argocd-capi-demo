@@ -131,55 +131,24 @@ kind: Job
 metadata:
   annotations:
     argocd.argoproj.io/hook: Sync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
-  name: capi-setup-{{ .Values.cluster.name }}-job
+    #argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  name: capi-setup-{{ .Values.cluster.name }}-trigger
   namespace: argocd
 spec:
   template:
     spec:
       containers:
-        - image: quay.io/redhatworkshops/capi-tools:latest
+        - image: registry.access.redhat.com/ubi8/ubi-minimal:latest
           command:
             - /bin/bash
             - -c
             - |
               echo ""
-              echo -n "Waiting for CAPI Cluster $CAPI_CLUSTER_NAME CP to be ready..."
-              sleep $WAIT
-              COUNTER=0
-              # Wait until number of CP nodes are staged
-              until [[ $(kubectl get kubeadmcontrolplane $CAPI_CLUSTER_NAME-control-plane -n default -o jsonpath="{.status.updatedReplicas}") -eq $CAPI_CP_NODES ]]
-              do
-                sleep $WAIT
-                COUNTER=$(( COUNTER + 1))
-                if [[ $COUNTER -gt $CAPI_WAIT_TIMEOUT ]]; then
-                  echo "TIMEOUT REACHED"
-                  exit 13
-                fi
-              done
-              # build config
-              /usr/local/bin/create-kconfig.sh
-              sleep $WAIT
-              # get the kubeconfig of the capi cluster
-              clusterctl get kubeconfig $CAPI_CLUSTER_NAME > $HOME/$CAPI_CLUSTER_NAME.kubeconfig
-              sleep $WAIT
-              # apply CNI
-              kubectl --kubeconfig=$HOME/$CAPI_CLUSTER_NAME.kubeconfig apply -f $CAPI_CNI_YAML_URL
-              sleep $WAIT
-              # export kc
-              export KUBECONFIG=$HOME/.kube/config:$HOME/$CAPI_CLUSTER_NAME.kubeconfig
-              sleep $WAIT
-              # extract argocd password
-              argopass=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
-              sleep $WAIT
-              # Login to ArgoCD
-              argocd login --insecure --username admin --password ${argopass} argocd-server.argocd.svc:80
-              sleep $WAIT
-              # Add the cluster, labeling it for the applicationset
-              argocd cluster add --label clustername=$CAPI_CLUSTER_NAME --label bgd=deploy --yes --name=$CAPI_CLUSTER_NAME $CAPI_CLUSTER_NAME-admin@$CAPI_CLUSTER_NAME
+              curl -X POST -H "Content-Type: application/json" http://webhook-eventsource-svc.argo-events.svc:12000 -d \
+              "{\"wait\":\"${WAIT}\", \"capi-cluster-name\":\"${CAPI_CLUSTER_NAME}\", \"capi-cp-nodes\": \"${CAPI_CP_NODES}\", \"capi-cni-yaml-url\": \"${CAPI_CNI_YAML_URL}\", \"capi-wait-timeout\":\"${CAPI_WAIT_TIMEOUT}\"}"
               sleep $WAIT
           imagePullPolicy: Always
-          name: capi-setup-container
+          name: capi-setup-wf-trigger
           env:
           - name: WAIT
             value: "{{ .Values.cluster.capiSetupWait }}"

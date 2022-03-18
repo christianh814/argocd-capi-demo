@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+  - name: payload
+    eventSourceName: webhook
+    eventName: capi-setup
+  triggers:
+  - template:
+      name: payload
+      k8s:
+        operation: create
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: capi-cluster-setup-
+              namespace: argocd
+            spec:
+              entrypoint: capi-setup
+              arguments:
+                parameters:
+                - name: wait
+                  value: "UNUSED_AND_OVERWRITTEN"
+                - name: capi-cluster-name
+                  value: "UNUSED_AND_OVERWRITTEN"
+                - name: capi-cp-nodes
+                  value: "UNUSED_AND_OVERWRITTEN"
+                - name: capi-cni-yaml-url
+                  value: "UNUSED_AND_OVERWRITTEN"
+                - name: capi-wait-timeout
+                  value: "UNUSED_AND_OVERWRITTEN"
+              templates:
+              - name: capi-setup
+                inputs:
+                  parameters:
+                  - name: wait
+                  - name: capi-cluster-name
+                  - name: capi-cp-nodes
+                  - name: capi-cni-yaml-url
+                  - name: capi-wait-timeout
+                container:
+                  image: quay.io/redhatworkshops/capi-tools:latest
+                  command:
+                    - /bin/bash
+                    - -c
+                  args: 
+                    - |
+                      echo ""
+                      echo -n "Waiting for CAPI Cluster $CAPI_CLUSTER_NAME CP to be ready..."
+                      sleep $WAIT
+                      COUNTER=0
+                      # Wait until number of CP nodes are staged
+                      until [[ $(kubectl get kubeadmcontrolplane $CAPI_CLUSTER_NAME-control-plane -n default -o jsonpath="{.status.updatedReplicas}") -eq $CAPI_CP_NODES ]]
+                      do
+                        sleep $WAIT
+                        COUNTER=$(( COUNTER + 1))
+                        if [[ $COUNTER -gt $CAPI_WAIT_TIMEOUT ]]; then
+                          echo "TIMEOUT REACHED"
+                          exit 13
+                        fi
+                      done
+                      # build config
+                      /usr/local/bin/create-kconfig.sh
+                      # get the kubeconfig of the capi cluster
+                      clusterctl get kubeconfig $CAPI_CLUSTER_NAME > $HOME/$CAPI_CLUSTER_NAME.kubeconfig
+                      # apply CNI
+                      kubectl --kubeconfig=$HOME/$CAPI_CLUSTER_NAME.kubeconfig apply -f $CAPI_CNI_YAML_URL
+                      # export kc
+                      export KUBECONFIG=$HOME/.kube/config:$HOME/$CAPI_CLUSTER_NAME.kubeconfig
+                      # extract argocd password
+                      argopass=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
+                      # Login to ArgoCD
+                      argocd login --insecure --username admin --password ${argopass} argocd-server.argocd.svc:80
+                      sleep $WAIT
+                      # Add the cluster, labeling it for the applicationset
+                      argocd cluster add --label clustername=$CAPI_CLUSTER_NAME --label bgd=deploy --yes --name=$CAPI_CLUSTER_NAME $CAPI_CLUSTER_NAME-admin@$CAPI_CLUSTER_NAME
+        parameters:
+          - src:
+              dependencyName: payload
+              dataKey: body.wait
+            dest: spec.arguments.parameters.0.value
+          - src:
+              dependencyName: payload
+              dataKey: body.capi-cluster-name
+            dest: spec.arguments.parameters.1.value
+          - src:
+              dependencyName: payload
+              dataKey: body.capi-cp-nodes
+            dest: spec.arguments.parameters.2.value
+          - src:
+              dependencyName: payload
+              dataKey: body.capi-cni-yaml-url
+            dest: spec.arguments.parameters.3.value
+          - src:
+              dependencyName: payload
+              dataKey: body.capi-wait-timeout
+            dest: spec.arguments.parameters.4.value

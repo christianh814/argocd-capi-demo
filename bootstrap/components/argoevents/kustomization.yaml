@@ -6,3 +6,5 @@ resources:
 - argoevents-ns.yaml
 - https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
 - https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+- event-source.yaml
+- sensor.yaml
