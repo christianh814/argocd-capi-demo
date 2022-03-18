@@ -131,7 +131,7 @@ kind: Job
 metadata:
   annotations:
     argocd.argoproj.io/hook: Sync
-    #argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
   name: capi-setup-{{ .Values.cluster.name }}-trigger
   namespace: argocd
 spec:
@@ -145,6 +145,10 @@ spec:
             - |
               echo ""
               sleep $WAIT
+              kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l eventsource-name=webhook -o name)
+              kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l sensor-name=webhook -o name)
+              kubectl rollout status sts/argocd-application-controller -n argocd
+              #
               curl -X POST -H "Content-Type: application/json" http://webhook-eventsource-svc.argo-events.svc:12000/capi-setup -d \
               "{\"wait\":\"${WAIT}\", \"capi-cluster-name\":\"${CAPI_CLUSTER_NAME}\", \"capi-cp-nodes\": \"${CAPI_CP_NODES}\", \"capi-cni-yaml-url\": \"${CAPI_CNI_YAML_URL}\", \"capi-wait-timeout\":\"${CAPI_WAIT_TIMEOUT}\"}"
               sleep $WAIT
