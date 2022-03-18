@@ -2,6 +2,8 @@
 
 This demos the ability to create Kubernetes clusters using Argo CD, Argo Workflows, Argo Events, and Cluster API.
 
+![diagram](docs/images/diagram.jpg)
+
 ## Prerequisites
 
 At a minimum you need
