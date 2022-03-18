@@ -91,6 +91,14 @@ Extract the Argo CD password so you can login to the UI as the `admin` user
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d ; echo
 ```
 
+Before creating the applicationsets, make sure everything is up and running
+
+```shell
+kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l eventsource-name=webhook -o name)
+kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l sensor-name=webhook -o name)
+kubectl rollout status sts/argocd-application-controller -n argocd
+```
+
 Create the `ApplicationSets`
 
 ```shell
