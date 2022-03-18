@@ -58,7 +58,7 @@ spec:
                       sleep "{{inputs.parameters.wait}}"
                       COUNTER=0
                       # Wait until number of CP nodes are staged
-                      until [[ $(kubectl get kubeadmcontrolplane "{{inputs.parameters.capi-cluster-name}}" -n default -o jsonpath="{.status.updatedReplicas}") -eq {{inputs.parameters.capi-cp-nodes}} ]]
+                      until [[ $(kubectl get kubeadmcontrolplane "{{inputs.parameters.capi-cluster-name}}-control-plane" -n default -o jsonpath="{.status.updatedReplicas}") -eq {{inputs.parameters.capi-cp-nodes}} ]]
                       do
                         sleep "{{inputs.parameters.wait}}"
                         COUNTER=$(( COUNTER + 1))
