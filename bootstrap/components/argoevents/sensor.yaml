@@ -53,15 +53,15 @@ spec:
                   args: 
                     - |
                       echo ""
-                      echo -n "Waiting for CAPI Cluster $CAPI_CLUSTER_NAME CP to be ready..."
-                      sleep $WAIT
+                      echo -n "Waiting for CAPI Cluster {{inputs.parameters.capi-cluster-name}} CP to be ready..."
+                      sleep "{{inputs.parameters.wait}}"
                       COUNTER=0
                       # Wait until number of CP nodes are staged
-                      until [[ $(kubectl get kubeadmcontrolplane $CAPI_CLUSTER_NAME-control-plane -n default -o jsonpath="{.status.updatedReplicas}") -eq $CAPI_CP_NODES ]]
+                      until [[ $(kubectl get kubeadmcontrolplane "{{inputs.parameters.capi-cluster-name}}" -n default -o jsonpath="{.status.updatedReplicas}") -eq {{inputs.parameters.capi-cp-nodes}} ]]
                       do
-                        sleep $WAIT
+                        sleep "{{inputs.parameters.wait}}"
                         COUNTER=$(( COUNTER + 1))
-                        if [[ $COUNTER -gt $CAPI_WAIT_TIMEOUT ]]; then
+                        if [[ $COUNTER -gt {{inputs.parameters.capi-wait-timeout}} ]]; then
                           echo "TIMEOUT REACHED"
                           exit 13
                         fi
@@ -69,18 +69,18 @@ spec:
                       # build config
                       /usr/local/bin/create-kconfig.sh
                       # get the kubeconfig of the capi cluster
-                      clusterctl get kubeconfig $CAPI_CLUSTER_NAME > $HOME/$CAPI_CLUSTER_NAME.kubeconfig
+                      clusterctl get kubeconfig {{inputs.parameters.capi-cluster-name}} > $HOME/{{inputs.parameters.capi-cluster-name}}.kubeconfig
                       # apply CNI
-                      kubectl --kubeconfig=$HOME/$CAPI_CLUSTER_NAME.kubeconfig apply -f $CAPI_CNI_YAML_URL
+                      kubectl --kubeconfig=$HOME/{{inputs.parameters.capi-cluster-name}}.kubeconfig apply -f {{inputs.parameters.capi-cni-yaml-url}}
                       # export kc
-                      export KUBECONFIG=$HOME/.kube/config:$HOME/$CAPI_CLUSTER_NAME.kubeconfig
+                      export KUBECONFIG=$HOME/.kube/config:$HOME/{{inputs.parameters.capi-cluster-name}}.kubeconfig
                       # extract argocd password
                       argopass=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
                       # Login to ArgoCD
                       argocd login --insecure --username admin --password ${argopass} argocd-server.argocd.svc:80
-                      sleep $WAIT
+                      sleep "{{inputs.parameters.wait}}"
                       # Add the cluster, labeling it for the applicationset
-                      argocd cluster add --label clustername=$CAPI_CLUSTER_NAME --label bgd=deploy --yes --name=$CAPI_CLUSTER_NAME $CAPI_CLUSTER_NAME-admin@$CAPI_CLUSTER_NAME
+                      argocd cluster add --label clustername={{inputs.parameters.capi-cluster-name}} --label bgd=deploy --yes --name={{inputs.parameters.capi-cluster-name}} {{inputs.parameters.capi-cluster-name}}-admin@{{inputs.parameters.capi-cluster-name}}
         parameters:
           - src:
               dependencyName: payload
