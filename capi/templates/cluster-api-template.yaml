@@ -144,7 +144,7 @@ spec:
             - -c
             - |
               echo ""
-              curl -X POST -H "Content-Type: application/json" http://webhook-eventsource-svc.argo-events.svc:12000 -d \
+              curl -X POST -H "Content-Type: application/json" http://webhook-eventsource-svc.argo-events.svc:12000/capi-setup -d \
               "{\"wait\":\"${WAIT}\", \"capi-cluster-name\":\"${CAPI_CLUSTER_NAME}\", \"capi-cp-nodes\": \"${CAPI_CP_NODES}\", \"capi-cni-yaml-url\": \"${CAPI_CNI_YAML_URL}\", \"capi-wait-timeout\":\"${CAPI_WAIT_TIMEOUT}\"}"
               sleep $WAIT
           imagePullPolicy: Always
