@@ -138,7 +138,7 @@ spec:
   template:
     spec:
       containers:
-        - image: registry.access.redhat.com/ubi8/ubi-minimal:latest
+        - image: quay.io/openshift/origin-cli:4.9
           command:
             - /bin/bash
             - -c

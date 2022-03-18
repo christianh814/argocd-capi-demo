@@ -23,6 +23,7 @@ spec:
               generateName: capi-cluster-setup-
               namespace: argocd
             spec:
+              serviceAccountName: argocd-application-controller
               entrypoint: capi-setup
               arguments:
                 parameters:
