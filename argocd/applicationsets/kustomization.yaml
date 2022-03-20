@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
 - capi-clusters-appset.yaml
 - clusters-workload-appset.yaml
+- bootstrap-appset.yaml

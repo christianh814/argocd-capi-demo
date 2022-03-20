@@ -13,7 +13,7 @@ spec:
     metadata:
       name: 'bgd-{{name}}'
     spec:
-      project: default
+      project: workloads
       syncPolicy:
         automated:
           prune: true

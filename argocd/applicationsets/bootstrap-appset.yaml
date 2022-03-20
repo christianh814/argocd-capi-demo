@@ -1,25 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: capi-clusters
+  name: argo-components
   namespace: argocd
 spec:
   generators:
   - list:
       elements:
-      - clusterName: cluster1
+      - appName: argo
         gitRepo: https://github.com/christianh814/argocd-capi-demo
-        appPath: capi
-        appBranch: main
-      - clusterName: cluster2
-        gitRepo: https://github.com/christianh814/argocd-capi-demo
-        appPath: capi
+        appPath: apps/argo/overlays/default/
         appBranch: main
   template:
     metadata:
-      name: '{{clusterName}}-capi'
+      name: '{{appName}}'
     spec:
-      project: clusters
+      project: argo-components
       syncPolicy:
         automated:
           prune: true
@@ -28,9 +24,6 @@ spec:
         repoURL: '{{gitRepo}}'
         path: '{{appPath}}'
         targetRevision: '{{appBranch}}'
-        helm:
-          valueFiles:
-            - 'values-{{clusterName}}.yaml'
       destination:
         server: https://kubernetes.default.svc
         namespace: default
