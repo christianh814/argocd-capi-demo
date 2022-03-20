@@ -3,5 +3,4 @@ kind: Kustomization
 
 bases:
 - ../../../argocd/applicationsets
-- ../../../argocd/projects
 - ../../../bootstrap/install
