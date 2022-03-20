@@ -39,6 +39,9 @@ spec:
                   value: "UNUSED_AND_OVERWRITTEN"
               templates:
               - name: capi-setup
+                retryStrategy:
+                  limit: "5"
+                  retryPolicy: "Always"
                 inputs:
                   parameters:
                   - name: wait
