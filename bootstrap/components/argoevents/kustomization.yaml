@@ -8,3 +8,16 @@ resources:
 - https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 - event-source.yaml
 - sensor.yaml
+
+patchesJSON6902:
+  - target:
+      version: v1alpha1
+      group: argoproj.io
+      kind: EventBus
+      name: default
+    patch: |-
+      - op: add
+        path: /spec/nats/native/persistence
+        value:
+          accessMode: ReadWriteOnce
+          volumeSize: 10Gi
