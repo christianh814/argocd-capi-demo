@@ -20,4 +20,4 @@ patchesJSON6902:
         path: /spec/nats/native/persistence
         value:
           accessMode: ReadWriteOnce
-          volumeSize: 10Gi
+          volumeSize: 1Gi
