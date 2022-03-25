@@ -144,7 +144,7 @@ spec:
             - -c
             - |
               echo ""
-              sleep 10
+              sleep $[ $(echo $RANDOM | cut -c 2) + $WAIT ]
               kubectl rollout status sts/argocd-application-controller -n argocd
               kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l eventsource-name=webhook -o name)
               kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l sensor-name=webhook -o name)
@@ -152,7 +152,7 @@ spec:
               #
               curl -X POST -H "Content-Type: application/json" http://webhook-eventsource-svc.argo-events.svc:12000/capi-setup -d \
               "{\"wait\":\"${WAIT}\", \"capi-cluster-name\":\"${CAPI_CLUSTER_NAME}\", \"capi-cp-nodes\": \"${CAPI_CP_NODES}\", \"capi-cni-yaml-url\": \"${CAPI_CNI_YAML_URL}\", \"capi-wait-timeout\":\"${CAPI_WAIT_TIMEOUT}\"}"
-              sleep $WAIT
+              sleep $[ $(echo $RANDOM | cut -c 2) + $WAIT ]
           imagePullPolicy: Always
           name: capi-setup-wf-trigger
           env:
