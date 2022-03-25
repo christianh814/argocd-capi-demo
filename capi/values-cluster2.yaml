@@ -1,7 +1,7 @@
 cluster:
   name: cluster2
   masterNodes: 1
-  workerNodes: 3
+  workerNodes: 1
   version: v1.23.3
   capiSetupWait: "5"
   capiClusterCNI: "https://docs.projectcalico.org/v3.21/manifests/calico.yaml"
