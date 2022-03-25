@@ -170,3 +170,36 @@ spec:
       restartPolicy: OnFailure
       serviceAccountName: argocd-application-controller
       terminationGracePeriodSeconds: 90
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    #argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  name: capi-{{ .Values.cluster.name }}-presync
+  namespace: argocd
+spec:
+  template:
+    spec:
+      containers:
+        - image: quay.io/openshift/origin-cli:4.9
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo ""
+              sleep $[ $(echo $RANDOM | cut -c 2) + $WAIT ]
+              kubectl rollout status sts/argocd-application-controller -n argocd
+              kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l eventsource-name=webhook -o name)
+              kubectl rollout status -n argo-events $(kubectl get deployment -n argo-events -l sensor-name=webhook -o name)
+              sleep $[ $(echo $RANDOM | cut -c 2) + $WAIT ]
+          imagePullPolicy: Always
+          name: capi-setup-wf-presync
+          env:
+          - name: WAIT
+            value: "{{ .Values.cluster.capiSetupWait }}"
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+      serviceAccountName: argocd-application-controller
+      terminationGracePeriodSeconds: 90
