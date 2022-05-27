@@ -1,0 +1,8 @@
+cluster:
+  name: cluster3
+  masterNodes: 1
+  workerNodes: 2
+  version: v1.23.3
+  capiSetupWait: "10"
+  capiClusterCNI: "https://docs.projectcalico.org/v3.21/manifests/calico.yaml"
+  capiSetupTimeout: "180"
