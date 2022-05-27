@@ -15,10 +15,6 @@ spec:
         gitRepo: https://github.com/christianh814/argocd-capi-demo
         appPath: capi
         appBranch: main
-      - clusterName: cluster3
-        gitRepo: https://github.com/christianh814/argocd-capi-demo
-        appPath: capi
-        appBranch: main
   template:
     metadata:
       name: '{{clusterName}}-capi'
