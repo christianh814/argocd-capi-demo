@@ -30,7 +30,7 @@ EOF
 Next, use this config to create your KIND cluster
 
 ```shell
-kind create cluster --config=kind-config.yaml --name=manager
+kind create cluster --config=kind-config.yaml --name=manager --image kindest/node:v1.23.3
 ```
 
 Once you see this output, you're good to go.
