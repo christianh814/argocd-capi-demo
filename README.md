@@ -30,14 +30,14 @@ EOF
 Next, use this config to create your KIND cluster
 
 ```shell
-kind create cluster --config=kind-config.yaml --name=manager --image kindest/node:v1.23.3
+kind create cluster --config=kind-config.yaml --name=manager
 ```
 
 Once you see this output, you're good to go.
 
 ```
 Creating cluster "manager" ...
- ✓ Ensuring node image (kindest/node:v1.23.4) 🖼
+ ✓ Ensuring node image (kindest/node:v1.25.0) 🖼
  ✓ Preparing nodes 📦  
  ✓ Writing configuration 📜 
  ✓ Starting control-plane 🕹️ 
@@ -62,6 +62,7 @@ kind get clusters
 Initialize this cluster with the Docker Cluster API infrastructure provider.
 
 ```shell
+export CLUSTER_TOPOLOGY=true
 clusterctl init --infrastructure docker
 ```
 
